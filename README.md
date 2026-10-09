@@ -38,3 +38,22 @@ python scripts/check_data.py       # counts and files match the release
 ```
 
 RoboBench has 88k files; set `HF_TOKEN` (or run `hf auth login` after `source scripts/env.sh`) for higher Hugging Face rate limits.
+
+## Speed and memory on an edge device (NVIDIA Jetson Thor)
+
+A small package of requests taken from the full runs times each model on the device and measures the memory it
+takes. It needs only the device's own vLLM (0.31.0 matches the full runs) and Python 3.8+; it installs nothing.
+Details: [robovlmbench/edge/README.md](robovlmbench/edge/README.md).
+
+1. Download `edge-subset.tar.gz` from the latest pre-release on
+   [Releases](https://github.com/ut-amrl/RoboVLMBench/releases) and compare `sha256sum edge-subset.tar.gz`
+   with the checksum in the release notes.
+2. `tar -xzf edge-subset.tar.gz && cd edge-subset`
+3. `python3 run_bench.py --check-system`: reads only, and prints anything missing with the command that would
+   fix it. Run such commands only with the device owner's approval.
+4. For each model (`python3 run_bench.py` lists them): `python3 run_bench.py --model <model>`. This starts the
+   system's vLLM with the memory the model needs (the first start downloads its weights, about 44 GiB for all
+   models), times its requests, records its memory, and stops it.
+5. Send back the `results/` folder.
+
+The package is built from the full runs with `python scripts/make_edge_subset.py` (needs `outputs/`).
