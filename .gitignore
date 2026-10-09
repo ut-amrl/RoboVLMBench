@@ -1,0 +1,10 @@
+/cache/
+/data/
+*.egg-info/
+/logs/
+/models/
+/outputs/
+__pycache__/
+/third_party/
+/.venv/
+/.venvs/

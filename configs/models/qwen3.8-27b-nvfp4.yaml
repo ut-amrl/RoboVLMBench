@@ -1,0 +1,37 @@
+# Qwen3.8-27B vision-language model, NVIDIA's NVFP4 conversion (4-bit weights, some layers FP8).
+# Modes: qwen3.8-27b-nvfp4_think, qwen3.8-27b-nvfp4_nothink (same weights, so one server answers both).
+repo: nvidia/Qwen3.8-27B-NVFP4
+revision: 482ca0f3832238542f8f5295dde86b5f22711d80
+max_seq_len: 20480  # ~3k prompt (image) + up to 16k of reasoning
+point_format: qwen  # asks for "point_2d" on a 0-1000 scale; converted to 0-1 before scoring
+
+engines:  # extra command-line arguments for each engine's server
+  vllm: ["--gpu-memory-utilization", "0.85", "--reasoning-parser", "qwen3"]
+  trtllm:
+    # Hybrid attention model: each running request keeps a fixed-size state, and trtllm-serve's
+    # default of 2048 concurrent requests reserves all GPU memory for it, so cap it.
+    ["--max_batch_size", "32", "--kv_cache_free_gpu_memory_fraction", "0.7"]
+
+# Sampling as recommended on the Qwen3.8-27B model card, per mode; a fixed seed makes runs repeatable.
+generation:
+  seed: 0
+
+modes:
+  think:
+    generation:
+      max_tokens: 16384
+      temperature: 1.0
+      top_p: 0.95
+      presence_penalty: 0.0
+      extra_body: {top_k: 20, min_p: 0.0, repetition_penalty: 1.0}
+  nothink:
+    generation:
+      max_tokens: 2048
+      temperature: 0.7
+      top_p: 0.8
+      presence_penalty: 1.5
+      extra_body:
+        top_k: 20
+        min_p: 0.0
+        repetition_penalty: 1.0
+        chat_template_kwargs: {enable_thinking: false}

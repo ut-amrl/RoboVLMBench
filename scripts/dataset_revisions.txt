@@ -1,0 +1,9 @@
+# Benchmark data, downloaded into data/<name>/ by scripts/download_data.py.
+# Hugging Face datasets are pinned to a commit. InstructPart's test set is only complete on
+# Google Drive, which has no versions, so it is pinned by the sha256 of its annotation file.
+# name          source                                     revision
+robobench       hf:LeoFan01/RoboBench                      b2c1b2d4f84a7c2be639741ae2d5c47301f79a67
+epic_bench      hf:rxc205/EPIC-Bench                       fa530a31cac42281add7a7fb2bbcb84d6f4815c3
+robospatial     hf:chanhee-luke/RoboSpatial-Home           7ef1b43b20087ef284e0e9017ef51dd143814c59
+ovdeval         hf:omlab/OVDEval                           99b2f3d1c0e395fa925c16046d72dee194a8df7f
+instructpart    gdrive:1_Qm7R-0XHqHUBBh7A3dX-f7WJPmfi49G   sha256:a836150b005c00f18e770cf4844eaed213074b6649b34cdb8617b1cac3288715

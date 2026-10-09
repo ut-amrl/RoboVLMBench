@@ -1,0 +1,33 @@
+# CaP-X protocol for `scripts/run_eval.py --bench capx`: which configs run, how many trials, and how.
+# A config is a task in a variant; every listed task runs in every listed variant of its suite.
+# See robovlmbench/benchmarks/capx/__init__.py.
+
+robosuite:  # .venvs/capx-robosuite-<arch>/
+  # CaP-X's 7 Robosuite tasks (folders of third_party/cap-x/env_configs/)
+  tasks: [cube_lifting, cube_stack, cube_restack, nut_assembly, spill_wipe, two_arm_lift, two_arm_handover]
+  # Variants are CaP-X's config files by suffix: privileged, default (perception), reduced_api,
+  # reduced_api_exampleless, multiturn, multiturn_vf. Variants other than privileged need perception servers,
+  # mostly SAM3 (gated weights). The _vdm variants are not supported: they query a hosted GPT/Claude model.
+  variants: [privileged]
+  trials: 20  # CaP-X's configs: 100
+
+libero:  # .venvs/capx-libero-<arch>/
+  # LIBERO-PRO perturbed suites: libero_{goal,spatial,object,10}_{swap,task,object,lan}; the original ones
+  # (libero_goal, ...) work too. These six are CaP-X's run_libero_batch.py default.
+  suites: [libero_goal_swap, libero_goal_task, libero_spatial_swap, libero_spatial_task, libero_object_swap,
+           libero_object_task]
+  task_ids: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  # privileged (single-turn), multiturn_privileged, multiturn (perception: SAM3)
+  variants: [privileged, multiturn_privileged]
+  trials: 10  # CaP-X's LIBERO runs: one per initial state, 50 per task
+
+num_workers: 8  # simulators running at once (CaP-X's configs: 10-12); model calls still go one at a time;
+# results don't depend on it (each episode is set by its seed), so it may change when a run resumes
+# CaP-X stops a trial after 1000 s (3 attempts). Its clock includes the model's answers unless this is false;
+# answer times depend on our hardware, so they are left out.
+timeout_includes_model_time: false
+# Trials of a config differ only in the simulator's initial state: with the model's fixed seed, the model writes
+# the same code every trial. true: the seed is offset by the trial number (seed + n), so trials also sample
+# the model (as CaP-X's unseeded API calls do); a retry after a timeout adds 1000 per attempt.
+seed_by_trial: true
+record_video: false  # CaP-X's per-trial videos (large); the last camera image is saved either way

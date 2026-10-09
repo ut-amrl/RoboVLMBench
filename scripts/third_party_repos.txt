@@ -1,0 +1,6 @@
+# Official evaluation code, cloned into third_party/ at these commits by scripts/setup_env.sh.
+# dir               url                                                   commit
+RoboBench           https://github.com/yulin-luo/RoboBench.git            08314edc65800086656a0ff93332b023180eaa35
+EPIC-Bench-Eval     https://github.com/rxc205/EPIC-Bench-Eval.git         f909a1f8ac177641d963efeb8c82c805d3060280
+RoboSpatial-Eval    https://github.com/chanhee-luke/RoboSpatial-Eval.git  c0095be6ca2d012086b3c141eccac4c879865cd4
+OVDEval             https://github.com/om-ai-lab/OVDEval.git              2ba0aa95bf71988207599d7b78cf0005ea6c9e19

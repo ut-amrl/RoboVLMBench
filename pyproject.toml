@@ -1,0 +1,28 @@
+[project]
+name = "robovlmbench"
+version = "0.1.0"
+description = "Evaluation harness for VLMs on robot tasks"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "robobench",    # official RoboBench package, from third_party/RoboBench
+    "numpy",
+    "scipy",        # EPIC-Bench scorer
+    "pycocotools",  # EPIC-Bench mask decoding
+    "pillow",       # RoboSpatial scorer
+    "tqdm",
+    "pyyaml",
+    "datasets",     # RoboSpatial official loader (Hugging Face)
+    "vllm==0.31.0", # inference engine; CUDA 13 build, runs on H100 and Blackwell (needs driver >= 580)
+]
+
+[tool.uv]
+python-preference = "only-managed"  # don't depend on TACC's python module
+# robobench wants opencv-python, vllm wants opencv-python-headless; both install `cv2`. Keep headless only.
+override-dependencies = ["opencv-python; sys_platform == 'never'"]
+
+[tool.uv.sources]
+robobench = { path = "third_party/RoboBench" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,35 @@
+# NVIDIA Cosmos-Reason2-8B (physical-AI reasoning VLM, fine-tuned from Qwen3-VL-8B-Instruct), vrfai's NVFP4
+# conversion with llm-compressor (vision encoder and lm_head unquantized). No NVFP4 version from NVIDIA exists.
+# Modes: cosmos-reason2-8b-nvfp4_think, cosmos-reason2-8b-nvfp4_nothink (same weights, so one server answers both).
+# Prompting and sampling follow NVIDIA's cosmos-reason2 repo (cosmos_reason2_utils: text.py, script/inference.py):
+# a fixed system prompt; reasoning is asked for by a suffix on the question, not a chat-template switch.
+repo: vrfai/Cosmos-Reason2-8B-NVFP4
+revision: e994e316d974b33b5ebe943fa0598936c805af3b
+max_seq_len: 20480  # ~3k prompt (image) + up to 16k of reasoning
+point_format: qwen  # Qwen3-VL grounding: "point_2d" / "bbox_2d" on a 0-1000 scale; converted to 0-1 before scoring
+
+engines:  # extra command-line arguments for each engine's server
+  # No reasoning parser: vLLM's qwen3 parser treats output without </think> as all reasoning, which
+  # empties every no-reasoning answer; the client splits "<think>...</think>" answers itself.
+  vllm: ["--gpu-memory-utilization", "0.85"]
+
+generation:
+  system_prompt: You are a helpful assistant.
+  extra_body: {top_k: 20, repetition_penalty: 1.0}
+
+modes:
+  think:
+    generation:
+      max_tokens: 16384
+      temperature: 0.6
+      top_p: 0.95
+      presence_penalty: 0.0
+      seed: 1234
+      prompt_suffix: "Answer the question using the following format:\n\n<think>\nYour reasoning.\n</think>\n\nWrite your final answer immediately after the </think> tag."
+  nothink:
+    generation:
+      max_tokens: 2048
+      temperature: 0.7
+      top_p: 0.8
+      presence_penalty: 1.5
+      seed: 3407

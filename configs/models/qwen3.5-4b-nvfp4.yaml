@@ -1,0 +1,35 @@
+# Qwen3.5-4B vision-language model, AxionML's NVFP4 conversion with NVIDIA ModelOpt (4-bit weights and
+# activations; vision encoder, lm_head and conv1d unquantized). No NVFP4 version from Qwen or NVIDIA exists.
+# Modes: qwen3.5-4b-nvfp4_think, qwen3.5-4b-nvfp4_nothink (same weights, so one server answers both).
+repo: AxionML/Qwen3.5-4B-NVFP4
+revision: 4521f321dc8c46d255929203ae6d3062e51d52fa
+max_seq_len: 20480  # ~3k prompt (image) + up to 16k of reasoning
+point_format: qwen  # asks for "point_2d" on a 0-1000 scale; converted to 0-1 before scoring
+
+engines:  # extra command-line arguments for each engine's server
+  vllm: ["--gpu-memory-utilization", "0.85", "--reasoning-parser", "qwen3"]
+
+# Sampling as recommended on the Qwen3.5-4B model card ("general tasks"), per mode; a fixed seed makes
+# runs repeatable. (Greedy decoding made Qwen3.5-9B repeat itself until max_tokens when reasoning.)
+generation:
+  seed: 0
+
+modes:
+  think:
+    generation:
+      max_tokens: 16384
+      temperature: 1.0
+      top_p: 0.95
+      presence_penalty: 1.5
+      extra_body: {top_k: 20, min_p: 0.0, repetition_penalty: 1.0}
+  nothink:
+    generation:
+      max_tokens: 2048
+      temperature: 0.7
+      top_p: 0.8
+      presence_penalty: 1.5
+      extra_body:
+        top_k: 20
+        min_p: 0.0
+        repetition_penalty: 1.0
+        chat_template_kwargs: {enable_thinking: false}
