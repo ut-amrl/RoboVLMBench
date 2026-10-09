@@ -6,7 +6,7 @@ max_seq_len: 20480  # ~3k prompt (image) + up to 16k of reasoning
 point_format: qwen  # asks for "point_2d" on a 0-1000 scale; converted to 0-1 before scoring
 
 engines:  # extra command-line arguments for each engine's server
-  vllm: ["--gpu-memory-utilization", "0.85", "--reasoning-parser", "qwen3"]
+  vllm: ["--reasoning-parser", "qwen3"]
   trtllm:
     # Hybrid attention model: each running request keeps a fixed-size state, and trtllm-serve's
     # default of 2048 concurrent requests reserves all GPU memory for it, so cap it.

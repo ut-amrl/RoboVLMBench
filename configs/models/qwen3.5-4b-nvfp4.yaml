@@ -7,7 +7,7 @@ max_seq_len: 20480  # ~3k prompt (image) + up to 16k of reasoning
 point_format: qwen  # asks for "point_2d" on a 0-1000 scale; converted to 0-1 before scoring
 
 engines:  # extra command-line arguments for each engine's server
-  vllm: ["--gpu-memory-utilization", "0.85", "--reasoning-parser", "qwen3"]
+  vllm: ["--reasoning-parser", "qwen3"]
 
 # Sampling as recommended on the Qwen3.5-4B model card ("general tasks"), per mode; a fixed seed makes
 # runs repeatable. (Greedy decoding made Qwen3.5-9B repeat itself until max_tokens when reasoning.)

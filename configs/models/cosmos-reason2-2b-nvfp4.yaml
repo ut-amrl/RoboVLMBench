@@ -11,7 +11,7 @@ point_format: qwen  # Qwen3-VL grounding: "point_2d" / "bbox_2d" on a 0-1000 sca
 engines:  # extra command-line arguments for each engine's server
   # No reasoning parser: vLLM's qwen3 parser treats output without </think> as all reasoning, which
   # empties every no-reasoning answer; the client splits "<think>...</think>" answers itself.
-  vllm: ["--gpu-memory-utilization", "0.85"]
+  vllm: []
 
 generation:
   system_prompt: You are a helpful assistant.

@@ -7,7 +7,7 @@ max_seq_len: 20480
 point_format: qwen  # asks for "point_2d" on a 0-1000 scale; converted to 0-1 before scoring
 
 engines:  # extra command-line arguments for each engine's server
-  vllm: ["--gpu-memory-utilization", "0.85", "--reasoning-parser", "qwen3"]
+  vllm: ["--reasoning-parser", "qwen3"]
 
 # Sampling as recommended on the Qwen3.5-0.8B model card ("non-thinking mode for VL tasks"); a fixed seed
 # makes runs repeatable.

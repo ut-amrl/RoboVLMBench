@@ -90,6 +90,26 @@ class Client:
             await client.close()
 
     async def _ask_one(self, client: AsyncOpenAI, request: Request) -> Response:
+        messages = self.messages(request)
+        start = time.monotonic()
+        try:
+            completion = await client.chat.completions.create(
+                model=self.model, messages=messages, extra_body=self.extra_body, **self.sampling)
+        except Exception as e:  # after the client's own retries
+            return Response(request.id, "", "", None, None, time.monotonic() - start, 0, 0,
+                            error=f"{type(e).__name__}: {e}")
+        latency = time.monotonic() - start
+
+        choice = completion.choices[0]
+        text = choice.message.content or ""
+        answer, reasoning = split_answer(choice)
+        usage = completion.usage
+        return Response(request.id, answer, text, reasoning, choice.finish_reason, latency,
+                        usage.prompt_tokens if usage else 0, usage.completion_tokens if usage else 0)
+
+    def messages(self, request: Request) -> list[dict]:
+        """The chat messages sent for `request`: the model's system prompt and prompt suffix added, images
+        as data URLs where the text places them (or before/after it)."""
         images = [{"type": "image_url", "image_url": {"url": _data_url(image)}} for image in request.images]
         if self.fresh_images:
             for part in images:
@@ -106,22 +126,7 @@ class Client:
         system = "\n\n".join(s for s in (self.system_prompt, request.system) if s)
         if system:
             messages.insert(0, {"role": "system", "content": system})
-
-        start = time.monotonic()
-        try:
-            completion = await client.chat.completions.create(
-                model=self.model, messages=messages, extra_body=self.extra_body, **self.sampling)
-        except Exception as e:  # after the client's own retries
-            return Response(request.id, "", "", None, None, time.monotonic() - start, 0, 0,
-                            error=f"{type(e).__name__}: {e}")
-        latency = time.monotonic() - start
-
-        choice = completion.choices[0]
-        text = choice.message.content or ""
-        answer, reasoning = split_answer(choice)
-        usage = completion.usage
-        return Response(request.id, answer, text, reasoning, choice.finish_reason, latency,
-                        usage.prompt_tokens if usage else 0, usage.completion_tokens if usage else 0)
+        return messages
 
 
 def split_answer(choice) -> tuple[str, str | None]:
